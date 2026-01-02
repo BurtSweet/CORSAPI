@@ -34,11 +34,50 @@ https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/LunaTV-c
 
 # 🌐 CORSAPI（API 代理 & JSON 订阅器）
 
+> 🔧 **v2.0 重大更新**：修复 TVBox API 参数转发问题
+
 这是一个基于 **Cloudflare Workers** 的中转代理 + JSON 配置前缀替换工具。
 
 支持将 API 请求通过 Worker 转发，并自动为 JSON 配置中的 `api` 字段添加/替换前缀。
 
 同时支持生成 **Base58 编码的订阅格式**，并提供**多种配置源选择**，方便在外部应用中快速使用。
+
+---
+
+## 🚨 v2.0 重要更新：修复 TVBox API 参数转发问题
+
+### 问题背景
+
+当使用 Cloudflare Worker 代理视频源 API 时，TVBox 会在 API URL 后面添加参数（如 `ac=list`, `ac=detail&ids=123`）。
+
+**原问题**：Worker 未正确转发这些额外参数，导致：
+- TVBox 调用 `https://worker.dev/?url=https://api.com/vod&ac=list`
+- Worker 只转发到 `https://api.com/vod`（丢失 `ac=list`）
+- 真实 API 收不到必需参数，返回 404 或空数据
+
+### 解决方案
+
+**v2.0 自动转发所有额外参数**：
+
+1. **为每个源生成唯一路径**（避免 TVBox 认为所有源是同一个）：
+```json
+{
+  "sites": [
+    {"name": "爱奇艺", "api": "https://worker.dev/p/iqiyi?url=https://iqiyizyapi.com/..."},
+    {"name": "豆瓣", "api": "https://worker.dev/p/dbzy?url=https://dbzy.tv/..."}
+  ]
+}
+```
+
+2. **自动提取并转发额外参数**：
+   - TVBox 调用：`https://worker.dev/p/iqiyi?url=https://api.com/vod&ac=list&pg=1`
+   - Worker 提取额外参数：`ac=list`, `pg=1`
+   - Worker 转发到：`https://api.com/vod?ac=list&pg=1` ✅
+
+- ✅ TVBox 看到不同路径，认为是不同源
+- ✅ 所有 API 参数正确转发，数据正常获取
+- ✅ 继续享受 Cloudflare 全球 CDN 加速
+- ✅ 向下兼容旧的 `/?url=...` 格式
 
 ---
 

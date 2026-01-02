@@ -40,10 +40,10 @@
    - Worker 提取额外参数：`ac=list`, `pg=1`
    - Worker 转发到：`https://api.com/vod?ac=list&pg=1` ✅
 
-✅ TVBox 看到不同路径，认为是不同源
-✅ 所有 API 参数正确转发，数据正常获取
-✅ 继续享受 Cloudflare 全球 CDN 加速
-✅ 向下兼容旧的 `/?url=...` 格式
+- ✅ TVBox 看到不同路径，认为是不同源
+- ✅ 所有 API 参数正确转发，数据正常获取
+- ✅ 继续享受 Cloudflare 全球 CDN 加速
+- ✅ 向下兼容旧的 `/?url=...` 格式
 
 ---
 
